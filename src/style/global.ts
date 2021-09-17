@@ -21,6 +21,11 @@ export const GlobalStyle = createGlobalStyle`
       background: #f0f0f5 url(${imgBackground}) no-repeat 70% top;
       -webkit-font-smoothings: antialiased;
     }
+
+    body, input, textarea, select, button {
+      font: 400 1rem "Roboto", sans-serif;
+    }
+
     #root {
       max-width:960px;
       margin: 0 auto;
