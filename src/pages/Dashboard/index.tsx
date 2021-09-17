@@ -1,3 +1,5 @@
+import { Title } from "./styled";
+
 export const Dashboard: React.FC = () => {
-  return <h1>Dashboard</h1>;
+  return <Title>Dashboard</Title>;
 };
