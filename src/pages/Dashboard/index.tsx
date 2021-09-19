@@ -1,5 +1,5 @@
-import React from "react";
-import { Title, Form, Repos } from "./styled";
+import React, { useState } from "react";
+import { Title, Form, Repos, Error } from "./styled";
 import logo from "../../assets/logo.svg";
 import { FiChevronRight } from "react-icons/fi";
 
@@ -15,8 +15,20 @@ interface GithubRepository {
 }
 
 export const Dashboard: React.FC = () => {
-  const [repos, setRepos] = React.useState<GithubRepository[]>([]);
+  const [repos, setRepos] = React.useState<GithubRepository[]>(() => {
+    const storedRepos = localStorage.getItem("@GitCollection:repositories");
+
+    if (storedRepos) {
+      return JSON.parse(storedRepos);
+    }
+    return [];
+  });
   const [newRepo, setNewRepo] = React.useState("");
+  const [inputError, setInputError] = useState("");
+
+  React.useEffect(() => {
+    localStorage.setItem("@GitCollection:repositories", JSON.stringify(repos));
+  }, [repos]);
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     setNewRepo(event.target.value);
@@ -27,6 +39,11 @@ export const Dashboard: React.FC = () => {
   ): Promise<void> {
     event.preventDefault();
 
+    if (!newRepo) {
+      setInputError("Informe o username/repositório!");
+      return;
+    }
+
     const response = await api.get<GithubRepository>(`repos/${newRepo}`);
     setRepos([...repos, response.data]);
     setNewRepo("");
@@ -35,7 +52,7 @@ export const Dashboard: React.FC = () => {
     <>
       <img src={logo} alt="logo-gitcollection" />
       <Title>Catálogo de repositório do Github</Title>
-      <Form onSubmit={handleAddRepo}>
+      <Form hasError={Boolean(inputError)} onSubmit={handleAddRepo}>
         <input
           type="text"
           placeholder="username/repository_name"
@@ -43,7 +60,7 @@ export const Dashboard: React.FC = () => {
         />
         <button type="submit">Buscar</button>
       </Form>
-
+      {inputError && <Error>{inputError}</Error>}
       <Repos>
         {repos.map((repository) => (
           <a href="/repositories" key={repository.full_name}>
